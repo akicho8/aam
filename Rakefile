@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+require "bundler"
+Bundler::GemHelper.install_tasks
+
+task :default => :test
+
+require "rake/testtask"
+Rake::TestTask.new do |t|
+  t.libs << "test"
+end
