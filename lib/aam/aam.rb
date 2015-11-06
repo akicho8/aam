@@ -65,7 +65,7 @@ module Aam
         end
       end
       # シリアライズされているかチェック
-      if serialized_klass = @klass.serialized_attributes[column.name]
+      if serialized_klass = @klass.serialized_attributes[column.name] # FIXME: Rails5でなくなるらしい
         if serialized_klass.kind_of? ActiveRecord::Coders::YAMLColumn
           serialized_klass = "=> #{serialized_klass.object_class}"
         else
