@@ -1,3 +1,3 @@
 require "aam/version"
 require "aam/aam"
-require "aam/railtie"
+require "aam/railtie" if defined? Rails::Railtie

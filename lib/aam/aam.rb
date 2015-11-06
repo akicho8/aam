@@ -8,7 +8,6 @@
 # ・テストユニットにも記入できる
 # ・リレーションされてないのを指摘
 
-require "rails"
 require "active_record"
 require "active_support/core_ext/string/filters"
 require "rain_table"
