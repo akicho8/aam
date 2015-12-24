@@ -52,7 +52,7 @@ end
 puts Aam::SchemaInfoGenerator.new(SubArticle).generate
 # >> # == Schema Information ==
 # >> #
-# >> # なんとかテーブル (articles)
+# >> # なんとかテーブル (articles as SubArticle)
 # >> #
 # >> # +----------+----------+---------+-------------+--------------------------------------+-------+
 # >> # | カラム名 | 意味     | タイプ  | 属性        | 参照                                 | INDEX |
@@ -63,6 +63,8 @@ puts Aam::SchemaInfoGenerator.new(SubArticle).generate
 # >> # | xxx_type | Xxx type | string  |             | モデル名(polymorphic)                |       |
 # >> # +----------+----------+---------+-------------+--------------------------------------+-------+
 # >> #
-# >> #- 警告 -------------------------------------------------------------------------
+# >> #- 備考 -------------------------------------------------------------------------
+# >> # ・SubArticle モデルは User モデルから has_many :articles されています。
 # >> # ・【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, [:xxx_id, :xxx_type] を追加してください
+# >> # ・SubArticle モデルは Blog モデルから has_many :sub_articles, :foreign_key => :xxx_id されています。
 # >> #--------------------------------------------------------------------------------

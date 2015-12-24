@@ -25,7 +25,7 @@ module Aam
         :skip_columns => [],
         :debug => false,
       }.merge(options)
-      @alerts = []
+      @memos = []
     end
 
     def generate
@@ -45,10 +45,10 @@ module Aam
       out << "# #{@klass.model_name.human}テーブル (#{@klass.table_name} as #{@klass.name})\n"
       out << "#\n"
       out << RainTable::TableFormatter.format(["カラム名", "意味", "タイプ", "属性", "参照", "INDEX"], rows).lines.collect{|row|"# #{row}"}.join
-      if @alerts.present?
+      if @memos.present?
         out << "#\n"
-        out << "#- 警告 -------------------------------------------------------------------------\n"
-        out << @alerts.collect{|row|"# ・#{row}\n"}.join
+        out << "#- 備考 -------------------------------------------------------------------------\n"
+        out << @memos.collect{|row|"# ・#{row}\n"}.join
         out << "#--------------------------------------------------------------------------------\n"
       end
       out.join
@@ -123,7 +123,7 @@ module Aam
           else
             syntax = "belongs_to :#{name}"
           end
-          alert_puts "【警告】#{@klass} モデルに #{syntax} を追加してください"
+          memo_puts "【警告】#{@klass} モデルに #{syntax} を追加してください"
         else
           # "xxx_type" は polymorphic 指定されていることを確認
           key, reflection = @klass.reflections.find do |key, reflection|
@@ -197,7 +197,7 @@ module Aam
           if assoc_reflection.options[:foreign_key]
             syntax << ":foreign_key => :#{assoc_reflection.options[:foreign_key]}"
           end
-          alert_puts "#{@klass.name} モデルは #{assoc_reflection.active_record} モデルから #{syntax.join(', ')} されています。"
+          memo_puts "#{@klass.name} モデルは #{assoc_reflection.active_record} モデルから #{syntax.join(', ')} されています。"
           r
         end
       end
@@ -210,7 +210,7 @@ module Aam
         if reflection.options[:foreign_key]
           syntax << ":foreign_key => :#{reflection.options[:foreign_key]}"
         end
-        alert_puts "【警告:リレーション欠如】#{reflection.class_name}モデルで #{syntax.join(', ')} されていません"
+        memo_puts "【警告:リレーション欠如】#{reflection.class_name}モデルで #{syntax.join(', ')} されていません"
       end
     end
 
@@ -300,21 +300,21 @@ module Aam
         # belongs_to :xxx, :polymorphic => true の場合は xxx_id と xxx_type のペアでインデックスを貼る
         if (md = column.name.match(/(\w+)_id\z/)) && (type_column = @klass.columns_hash["#{md.captures.first}_type"])
           unless index_column?(column) && index_column?(type_column)
-            alert_puts "【警告:インデックス欠如】create_#{@klass.table_name} マイグレーションに add_index :#{@klass.table_name}, [:#{column.name}, :#{type_column.name}] を追加してください"
+            memo_puts "【警告:インデックス欠如】create_#{@klass.table_name} マイグレーションに add_index :#{@klass.table_name}, [:#{column.name}, :#{type_column.name}] を追加してください"
           end
         else
           unless index_column?(column)
-            alert_puts "【警告:インデックス欠如】create_#{@klass.table_name} マイグレーションに add_index :#{@klass.table_name}, :#{column.name} を追加してください"
+            memo_puts "【警告:インデックス欠如】create_#{@klass.table_name} マイグレーションに add_index :#{@klass.table_name}, :#{column.name} を追加してください"
           end
         end
       end
     end
 
-    def alert_puts(str)
+    def memo_puts(str)
       if @options[:debug]
         Aam.logger.debug str if Aam.logger
       end
-      @alerts << str
+      @memos << str
       nil
     end
   end
