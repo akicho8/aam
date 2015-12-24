@@ -411,7 +411,7 @@ module Aam
         end
         content = insert_magick_comment(content)
         unless @base.options[:dry_run]
-          file_name.open("w"){|f|f << content}
+          file_name.write(content)
         end
         puts "write: #{file_name}"
         @base.counts[:success_count] += 1
