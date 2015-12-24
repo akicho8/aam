@@ -335,10 +335,12 @@ module Aam
     end
 
     def run
+      @all = ""
       target_ar_klasses.each do |klass|
         begin
           model = Model.new(self, klass)
           model.write_to_relation_files
+          @all << model.schema_info
         rescue ActiveRecord::ActiveRecordError => error
           puts "--------------------------------------------------------------------------------"
           p error
@@ -346,7 +348,12 @@ module Aam
           @counts[:error] += 1
         end
       end
+
+      file = options[:root_dir].join("db", "schema_info.txt")
+      file.write(@all)
+
       puts "#{@counts[:success]} success, #{@counts[:skip]} skip, #{@counts[:error]} errors"
+      puts "write: #{file}"
     end
 
     private
