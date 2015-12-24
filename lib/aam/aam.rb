@@ -404,7 +404,7 @@ module Aam
         if content.match(regexp)
           content = content.sub(regexp, @schema_info)
         elsif content.include?(MAGIC_COMMENT_LINE)
-          content = content.sub(/#{Regexp.escape(MAGIC_COMMENT_LINE)}\s*/){MAGIC_COMMENT_LINE + @schema_info}
+          content = content.sub(/#{Regexp.escape(MAGIC_COMMENT_LINE)}\s*/) {MAGIC_COMMENT_LINE + @schema_info}
         else
           content = content.sub(/^\s*/, @schema_info)
         end
