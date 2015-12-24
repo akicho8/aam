@@ -340,7 +340,7 @@ module Aam
     end
 
     def run
-      schema_txt_write
+      schema_info_text_write
       puts
       model_file_write_all
     end
@@ -362,7 +362,7 @@ module Aam
       puts "#{@counts[:success]} success, #{@counts[:skip]} skip, #{@counts[:error]} errors"
     end
 
-    def schema_txt_write
+    def schema_info_text_write
       @all = []
       target_ar_klasses_from_model_require_and_ar_subclasses.each do |klass|
         begin
@@ -372,7 +372,8 @@ module Aam
         end
       end
       file = options[:root_dir].join("db", "schema_info.txt")
-      file.write(@all.join)
+      magic_comment = "-*- truncate-lines: t -*-"
+      file.write("#{magic_comment}\n\n#{@all.join}")
       puts "output: #{file} (#{@all.size} counts)"
     end
 
