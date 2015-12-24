@@ -335,7 +335,6 @@ module Aam
     end
 
     def run
-      error_count = 0
       target_ar_klasses.each do |klass|
         begin
           Model.new(self, klass).write_to_relation_files
@@ -343,10 +342,10 @@ module Aam
           puts "--------------------------------------------------------------------------------"
           p error
           puts "--------------------------------------------------------------------------------"
-          error_count += 1
+          @counts[:error] += 1
         end
       end
-      puts "#{@counts[:success_count]} success, #{@counts[:skip_count]} skip, #{error_count} errors"
+      puts "#{@counts[:success]} success, #{@counts[:skip]} skip, #{@counts[:error]} errors"
     end
 
     private
@@ -414,7 +413,7 @@ module Aam
           file_name.write(content)
         end
         puts "write: #{file_name}"
-        @base.counts[:success_count] += 1
+        @base.counts[:success] += 1
       end
 
       def insert_magick_comment(content, force = false)
