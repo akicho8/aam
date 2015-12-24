@@ -13,7 +13,7 @@ require "active_support/core_ext/string/filters"
 require "rain_table"
 
 module Aam
-  SCHEMA_HEADER = "# == Schema Information ==\n"
+  SCHEMA_HEADER = "# == Schema Information =="
 
   mattr_accessor :logger
   self.logger = ActiveSupport::Logger.new(STDOUT)
@@ -40,7 +40,7 @@ module Aam
         ]
       }.compact
       out = []
-      out << "#{SCHEMA_HEADER}#\n"
+      out << "#{SCHEMA_HEADER}\n#\n"
       out << "# #{@klass.model_name.human}テーブル (#{@klass.table_name})\n"
       out << "#\n"
       out << RainTable::TableFormatter.format(["カラム名", "意味", "タイプ", "属性", "参照", "INDEX"], rows).lines.collect{|row|"# #{row}"}.join
@@ -401,7 +401,7 @@ module Aam
 
       def annotate_write(file_name)
         content = file_name.read
-        regexp = /^#{SCHEMA_HEADER}(#.*\n)*\n+/
+        regexp = /^#{SCHEMA_HEADER}\n(#.*\n)*\n+/
         if content.match(regexp)
           content = content.sub(regexp, @schema_info)
         elsif content.include?(MAGIC_COMMENT_LINE)
