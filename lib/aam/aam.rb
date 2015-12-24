@@ -337,7 +337,8 @@ module Aam
     def run
       target_ar_klasses.each do |klass|
         begin
-          Model.new(self, klass).write_to_relation_files
+          model = Model.new(self, klass)
+          model.write_to_relation_files
         rescue ActiveRecord::ActiveRecordError => error
           puts "--------------------------------------------------------------------------------"
           p error
@@ -356,10 +357,13 @@ module Aam
         @klass = klass
       end
 
+      def schema_info
+        @schema_info ||= SchemaInfoGenerator.new(@klass, @base.options).generate + "\n"
+      end
+
       def write_to_relation_files
         puts "--------------------------------------------------------------------------------"
         puts "--> #{@klass}"
-        @schema_info = SchemaInfoGenerator.new(@klass, @base.options).generate + "\n"
         target_files = search_paths.collect {|search_path|
           Pathname.glob((@base.options[:root_dir] + search_path).expand_path)
         }.flatten.uniq
@@ -379,17 +383,18 @@ module Aam
         paths << "**/spec/models/**/#{@klass.name.underscore}_spec.rb"
         paths << "**/{test,spec}/**/#{@klass.name.underscore}_factory.rb"
         [:pluralize, :singularize].each{|method|
+          prefix = @klass.name.underscore.send(method)
           [
-            "**/app/controllers/**/#{@klass.name.underscore.send(method)}_controller.rb",
-            "**/app/helpers/**/#{@klass.name.underscore.send(method)}_helper.rb",
-            "**/test/functional/**/#{@klass.name.underscore.send(method)}_controller_test.rb",
-            "**/test/factories/**/#{@klass.name.underscore.send(method)}_factory.rb",
-            "**/test/factories/**/#{@klass.name.underscore.send(method)}.rb",
-            "**/db/seeds/**/{[0-9]*_,}#{@klass.name.underscore.send(method)}_setup.rb",
-            "**/db/seeds/**/{[0-9]*_,}#{@klass.name.underscore.send(method)}_seed.rb",
-            "**/db/seeds/**/{[0-9]*_,}#{@klass.name.underscore.send(method)}.rb",
-            "**/db/migrate/*_{create,to,from}_#{@klass.name.underscore.send(method)}.rb",
-            "**/spec/**/#{@klass.name.underscore.send(method)}_{controller,helper}_spec.rb",
+            "**/app/controllers/**/#{prefix}_controller.rb",
+            "**/app/helpers/**/#{prefix}_helper.rb",
+            "**/test/functional/**/#{prefix}_controller_test.rb",
+            "**/test/factories/**/#{prefix}_factory.rb",
+            "**/test/factories/**/#{prefix}.rb",
+            "**/db/seeds/**/{[0-9]*_,}#{prefix}_setup.rb",
+            "**/db/seeds/**/{[0-9]*_,}#{prefix}_seed.rb",
+            "**/db/seeds/**/{[0-9]*_,}#{prefix}.rb",
+            "**/db/migrate/*_{create,to,from}_#{prefix}.rb",
+            "**/spec/**/#{prefix}_{controller,helper}_spec.rb",
           ].each{|path|
             paths << path
             paths << "**/#{path}"
@@ -399,31 +404,31 @@ module Aam
       end
 
       def annotate_write(file_name)
-        content = file_name.read
+        body = file_name.read
         regexp = /^#{SCHEMA_HEADER}\n(#.*\n)*\n+/
-        if content.match(regexp)
-          content = content.sub(regexp, @schema_info)
-        elsif content.include?(MAGIC_COMMENT_LINE)
-          content = content.sub(/#{Regexp.escape(MAGIC_COMMENT_LINE)}\s*/) {MAGIC_COMMENT_LINE + @schema_info}
+        if body.match(regexp)
+          body = body.sub(regexp, schema_info)
+        elsif body.include?(MAGIC_COMMENT_LINE)
+          body = body.sub(/#{Regexp.escape(MAGIC_COMMENT_LINE)}\s*/) {MAGIC_COMMENT_LINE + schema_info}
         else
-          content = content.sub(/^\s*/, @schema_info)
+          body = body.sub(/^\s*/, schema_info)
         end
-        content = insert_magick_comment(content)
+        body = insert_magick_comment(body)
         unless @base.options[:dry_run]
-          file_name.write(content)
+          file_name.write(body)
         end
         puts "write: #{file_name}"
         @base.counts[:success] += 1
       end
 
-      def insert_magick_comment(content, force = false)
+      def insert_magick_comment(body, force = false)
         if force
-          content = content.sub(/#{Regexp.escape(MAGIC_COMMENT_LINE)}\s*/, "")
+          body = body.sub(/#{Regexp.escape(MAGIC_COMMENT_LINE)}\s*/, "")
         end
-        unless content.include?(MAGIC_COMMENT_LINE)
-          content = content.sub(/^\s*/, MAGIC_COMMENT_LINE)
+        unless body.include?(MAGIC_COMMENT_LINE)
+          body = body.sub(/^\s*/, MAGIC_COMMENT_LINE)
         end
-        content
+        body
       end
     end
 
@@ -435,8 +440,10 @@ module Aam
       files += Pathname.glob("#{@options[:root_dir]}/app/models/**/*.rb")
       files += Pathname.glob("#{@options[:root_dir]}/vendor/plugins/*/app/models/**/*.rb")
       if @options[:models]
-        @options[:models].split(",").collect{|m|
-          files.find_all{|e|e.basename(".*").to_s.match(/#{m.camelize}|#{m.underscore}/i)}
+        @options[:models].split(",").collect { |m|
+          files.find_all { |e|
+            e.basename(".*").to_s.match(/#{m.camelize}|#{m.underscore}/i)
+          }
         }.flatten.uniq
       else
         files
@@ -448,11 +455,11 @@ module Aam
     #
     def target_ar_klasses
       models = []
-      target_model_files.each do |model_file|
-        model_file = model_file.expand_path
+      target_model_files.each do |file|
+        file = file.expand_path
         klass = nil
         if true
-          class_name = model_file.basename(".*").to_s.camelize # classify だと boss が bos になってしまう
+          class_name = file.basename(".*").to_s.camelize # classify だと boss が bos になってしまう
           begin
             klass = class_name.constantize
           rescue LoadError => error # LoadError は rescue nil では捕捉できないため
@@ -460,15 +467,15 @@ module Aam
           rescue
           end
         else
-          klass = model_file.basename(".*").to_s.classify.constantize rescue nil
+          klass = file.basename(".*").to_s.classify.constantize rescue nil
         end
         # klass.class == Class を入れないと [] < ActiveRecord::Base のときにエラーになる
         if klass && klass.class == Class && klass < ActiveRecord::Base && !klass.abstract_class?
-          # puts "#{model_file} は ActiveRecord::Base のサブクラスなので対象とします。"
-          puts "model: #{model_file}"
+          # puts "#{file} は ActiveRecord::Base のサブクラスなので対象とします。"
+          puts "model: #{file}"
           models << klass
         else
-          # puts "#{model_file} (クラス名:#{class_name}) は ActiveRecord::Base のサブクラスではありませんでした。"
+          # puts "#{file} (クラス名:#{class_name}) は ActiveRecord::Base のサブクラスではありませんでした。"
         end
       end
       models
