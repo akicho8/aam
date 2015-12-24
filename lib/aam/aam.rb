@@ -13,7 +13,7 @@ require "active_support/core_ext/string/filters"
 require "rain_table"
 
 module Aam
-  SCHEMA_HEADER = "# == Schema Information ==\n".freeze
+  SCHEMA_HEADER = "# == Schema Information ==\n"
 
   mattr_accessor :logger
   self.logger = ActiveSupport::Logger.new(STDOUT)
