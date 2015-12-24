@@ -52,7 +52,7 @@ class TestAam < Test::Unit::TestCase
     assert_equal <<-EOT.strip_heredoc, Aam::SchemaInfoGenerator.new(User).generate 
 # == Schema Information ==
 #
-# Userテーブル (users)
+# Userテーブル (users as User)
 #
 # +----------+------+------------+-------------+------+-------+
 # | カラム名 | 意味 | タイプ     | 属性        | 参照 | INDEX |
@@ -65,7 +65,7 @@ EOT
     assert_equal <<-EOT.strip_heredoc, Aam::SchemaInfoGenerator.new(Article).generate
 # == Schema Information ==
 #
-# Articleテーブル (articles)
+# Articleテーブル (articles as Article)
 #
 # +----------+----------+---------+-------------+-----------------------+-------+
 # | カラム名 | 意味     | タイプ  | 属性        | 参照                  | INDEX |
@@ -78,13 +78,14 @@ EOT
 #
 #- 警告 -------------------------------------------------------------------------
 # ・【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, :user_id を追加してください
+# ・Article モデルは User モデルから has_many :articles されています。
 # ・【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, [:xxx_id, :xxx_type] を追加してください
 #--------------------------------------------------------------------------------
 EOT
     Aam::SchemaInfoGenerator.new(SubArticle).generate == <<-EOT.strip_heredoc
 # == Schema Information ==
 #
-# Sub articleテーブル (articles)
+# Sub articleテーブル (articles as SubArticle)
 #
 # +----------+----------+---------+-------------+--------------------------------------+-------+
 # | カラム名 | 意味     | タイプ  | 属性        | 参照                                 | INDEX |
@@ -124,7 +125,7 @@ EOT
     assert_equal <<-EOT.strip_heredoc, Aam::SchemaInfoGenerator.new(Foo).generate
 # == Schema Information ==
 #
-# Fooテーブル (foos)
+# Fooテーブル (foos as Foo)
 #
 # +----------+----------+---------+-------------+------+-------+
 # | カラム名 | 意味     | タイプ  | 属性        | 参照 | INDEX |
