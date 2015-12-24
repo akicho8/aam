@@ -23,6 +23,7 @@ module Aam
       @klass = klass
       @options = {
         :skip_columns => [],
+        :debug => false,
       }.merge(options)
       @alerts = []
     end
@@ -41,7 +42,7 @@ module Aam
       }.compact
       out = []
       out << "#{SCHEMA_HEADER}\n#\n"
-      out << "# #{@klass.model_name.human}テーブル (#{@klass.table_name})\n"
+      out << "# #{@klass.model_name.human}テーブル (#{@klass.table_name} as #{@klass.name})\n"
       out << "#\n"
       out << RainTable::TableFormatter.format(["カラム名", "意味", "タイプ", "属性", "参照", "INDEX"], rows).lines.collect{|row|"# #{row}"}.join
       if @alerts.present?
@@ -145,10 +146,12 @@ module Aam
           begin
             reflection_inspect_of(column, reflection)
           rescue NameError => error
-            puts "--------------------------------------------------------------------------------"
-            puts "【警告】以下のクラスがないため NameError になっちゃってます"
-            p error
-            puts "--------------------------------------------------------------------------------"
+            if @options[:debug]
+              puts "--------------------------------------------------------------------------------"
+              puts "【警告】以下のクラスがないため NameError になっちゃってます"
+              p error
+              puts "--------------------------------------------------------------------------------"
+            end
           end
         end
       end
@@ -194,7 +197,7 @@ module Aam
           if assoc_reflection.options[:foreign_key]
             syntax << ":foreign_key => :#{assoc_reflection.options[:foreign_key]}"
           end
-          Aam.logger.debug "#{@klass.name} モデルは #{assoc_reflection.active_record} モデルから #{syntax.join(', ')} されています。" if Aam.logger
+          alert_puts "#{@klass.name} モデルは #{assoc_reflection.active_record} モデルから #{syntax.join(', ')} されています。"
           r
         end
       end
@@ -308,7 +311,9 @@ module Aam
     end
 
     def alert_puts(str)
-      Aam.logger.debug str if Aam.logger
+      if @options[:debug]
+        Aam.logger.debug str if Aam.logger
+      end
       @alerts << str
       nil
     end
@@ -335,25 +340,40 @@ module Aam
     end
 
     def run
-      @all = ""
-      target_ar_klasses.each do |klass|
+      schema_txt_write
+      puts
+      model_file_write_all
+    end
+
+    def model_file_write_all
+      target_ar_klasses_from_model_filenames.each do |klass|
         begin
           model = Model.new(self, klass)
           model.write_to_relation_files
-          @all << model.schema_info
         rescue ActiveRecord::ActiveRecordError => error
-          puts "--------------------------------------------------------------------------------"
-          p error
-          puts "--------------------------------------------------------------------------------"
+          if @options[:debug]
+            puts "--------------------------------------------------------------------------------"
+            p error
+            puts "--------------------------------------------------------------------------------"
+          end
           @counts[:error] += 1
         end
       end
-
-      file = options[:root_dir].join("db", "schema_info.txt")
-      file.write(@all)
-
       puts "#{@counts[:success]} success, #{@counts[:skip]} skip, #{@counts[:error]} errors"
-      puts "write: #{file}"
+    end
+
+    def schema_txt_write
+      @all = []
+      target_ar_klasses_from_model_require_and_ar_subclasses.each do |klass|
+        begin
+          model = Model.new(self, klass)
+          @all << model.schema_info
+        rescue ActiveRecord::ActiveRecordError => error
+        end
+      end
+      file = options[:root_dir].join("db", "schema_info.txt")
+      file.write(@all.join)
+      puts "output: #{file} (#{@all.size} counts)"
     end
 
     private
@@ -440,27 +460,29 @@ module Aam
     end
 
     #
-    # 対象のモデルファイル
-    #
-    def target_model_files
-      files = []
-      files += Pathname.glob("#{@options[:root_dir]}/app/models/**/*.rb")
-      files += Pathname.glob("#{@options[:root_dir]}/vendor/plugins/*/app/models/**/*.rb")
-      if @options[:models]
-        @options[:models].split(",").collect { |m|
-          files.find_all { |e|
-            e.basename(".*").to_s.match(/#{m.camelize}|#{m.underscore}/i)
-          }
-        }.flatten.uniq
-      else
-        files
-      end
-    end
-
-    #
     # テーブルを持っているクラスたち
     #
     def target_ar_klasses
+      target_ar_klasses_from_model_require_and_ar_subclasses
+      # ActiveRecord::Base.subclasses
+    end
+
+    # すべての app/models/**/*.rb を require したあと ActiveRecord::Base.subclasses を参照
+    def target_ar_klasses_from_model_require_and_ar_subclasses
+      target_model_files.each do |file|
+        begin
+          silence_warnings do
+            require file
+          end
+          puts "require: #{file}"
+        rescue Exception
+        end
+      end
+      ActiveRecord::Base.subclasses
+    end
+
+    # app/models/* のファイル名を constantize してみることでクラスを収集する
+    def target_ar_klasses_from_model_filenames
       models = []
       target_model_files.each do |file|
         file = file.expand_path
@@ -486,6 +508,24 @@ module Aam
         end
       end
       models
+    end
+
+    #
+    # 対象のモデルファイル
+    #
+    def target_model_files
+      files = []
+      files += Pathname.glob("#{@options[:root_dir]}/app/models/**/*.rb")
+      files += Pathname.glob("#{@options[:root_dir]}/vendor/plugins/*/app/models/**/*.rb")
+      if @options[:models]
+        @options[:models].split(",").collect { |m|
+          files.find_all { |e|
+            e.basename(".*").to_s.match(/#{m.camelize}|#{m.underscore}/i)
+          }
+        }.flatten.uniq
+      else
+        files
+      end
     end
   end
 end
