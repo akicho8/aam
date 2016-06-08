@@ -29,22 +29,24 @@ module Aam
     end
 
     def generate
-      rows = @klass.columns.collect {|column|
-        next if @options[:skip_columns].include?(column.name)
-        [
-          column.name,
-          column_to_human_name(column.name),
-          column_type_inspect_of(column),
-          column_attribute_inspect_of(column),
-          reflections_inspect_of(column),
-          index_info(column),
-        ]
-      }.compact
+      columns = @klass.columns.reject { |e|
+        @options[:skip_columns].include?(e.name)
+      }
+      rows = columns.collect {|e|
+        {
+          "カラム名" => e.name,
+          "意味"     => column_to_human_name(e.name),
+          "タイプ"   => column_type_inspect_of(e),
+          "属性"     => column_attribute_inspect_of(e),
+          "参照"     => reflections_inspect_of(e),
+          "INDEX"    => index_info(e),
+        }
+      }
       out = []
       out << "#{SCHEMA_HEADER}\n#\n"
       out << "# #{@klass.model_name.human}テーブル (#{@klass.table_name} as #{@klass.name})\n"
       out << "#\n"
-      out << RainTable::TableFormatter.format(["カラム名", "意味", "タイプ", "属性", "参照", "INDEX"], rows).lines.collect{|row|"# #{row}"}.join
+      out << rows.to_t.lines.collect { |e| "# #{e}" }.join
       if @memos.present?
         out << "#\n"
         out << "#- 備考 -------------------------------------------------------------------------\n"
