@@ -67,14 +67,19 @@ module Aam
           size = "(#{column.limit})"
         end
       end
+
       # シリアライズされているかチェック
-      if serialized_klass = @klass.serialized_attributes[column.name] # FIXME: Rails5でなくなるらしい
-        if serialized_klass.kind_of? ActiveRecord::Coders::YAMLColumn
-          serialized_klass = "=> #{serialized_klass.object_class}"
-        else
-          serialized_klass = "=> #{serialized_klass}"
+      serialized_klass = nil
+      if @klass.respond_to?(:serialized_attributes) # Rails5 から無くなったため存在チェック
+        if serialized_klass = @klass.serialized_attributes[column.name]
+          if serialized_klass.kind_of? ActiveRecord::Coders::YAMLColumn
+            serialized_klass = "=> #{serialized_klass.object_class}"
+          else
+            serialized_klass = "=> #{serialized_klass}"
+          end
         end
       end
+
       "#{column.type}#{size} #{serialized_klass}".squish
     end
 

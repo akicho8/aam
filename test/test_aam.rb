@@ -11,15 +11,15 @@ ActiveRecord::Schema.define do
     add_index :users, :name, :unique => true
 
     create_table(:articles) do |t|
-      t.belongs_to :user
-      t.belongs_to :xxx, :polymorphic => true
+      t.belongs_to :user, :index => false
+      t.belongs_to :xxx, :polymorphic => true, :index => false
     end
     create_table(:blogs) do |t|
       t.string :name
     end
     create_table(:foos) do |t|
-      t.belongs_to :user
-      t.belongs_to :xxx, :polymorphic => true
+      t.belongs_to :user, :index => false
+      t.belongs_to :xxx, :polymorphic => true, :index => false
     end
   end
 end
@@ -72,8 +72,8 @@ EOT
 # +----------+----------+---------+-------------+-----------------------+-------+
 # | id       | Id       | integer | NOT NULL PK |                       |       |
 # | user_id  | User     | integer |             | => User#id            |       |
-# | xxx_id   | Xxx      | integer |             | => (xxx_type)#id      |       |
 # | xxx_type | Xxx type | string  |             | モデル名(polymorphic) |       |
+# | xxx_id   | Xxx      | integer |             | => (xxx_type)#id      |       |
 # +----------+----------+---------+-------------+-----------------------+-------+
 #
 #- 備考 -------------------------------------------------------------------------
@@ -92,8 +92,8 @@ EOT
 # +----------+----------+---------+-------------+--------------------------------------+-------+
 # | id       | Id       | integer | NOT NULL PK |                                      |       |
 # | user_id  | User     | integer |             | => User#id                           |       |
-# | xxx_id   | Xxx      | integer |             | :blog => Blog#id と => (xxx_type)#id |       |
 # | xxx_type | Xxx type | string  |             | モデル名(polymorphic)                |       |
+# | xxx_id   | Xxx      | integer |             | :blog => Blog#id と => (xxx_type)#id |       |
 # +----------+----------+---------+-------------+--------------------------------------+-------+
 #
 #- 備考 -------------------------------------------------------------------------
@@ -132,8 +132,8 @@ EOT
 # +----------+----------+---------+-------------+------+-------+
 # | id       | Id       | integer | NOT NULL PK |      |       |
 # | user_id  | User     | integer |             |      |       |
-# | xxx_id   | Xxx      | integer |             |      |       |
 # | xxx_type | Xxx type | string  |             |      |       |
+# | xxx_id   | Xxx      | integer |             |      |       |
 # +----------+----------+---------+-------------+------+-------+
 #
 #- 備考 -------------------------------------------------------------------------

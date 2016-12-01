@@ -13,7 +13,7 @@ ActiveRecord::Schema.define do
 
     create_table :articles do |t|
       t.belongs_to :user, index: true
-      t.belongs_to :xxx, :polymorphic => true
+      t.belongs_to :xxx, :polymorphic => true, :index => false # Rails5からindex:trueがデフォルトになっているため
     end
 
     create_table :blogs do |t|
@@ -59,8 +59,8 @@ puts Aam::SchemaInfoGenerator.new(SubArticle).generate
 # >> # +----------+----------+---------+-------------+--------------------------------------+-------+
 # >> # | id       | Id       | integer | NOT NULL PK |                                      |       |
 # >> # | user_id  | ユーザー | integer |             | => User#id                           | A     |
-# >> # | xxx_id   | Xxx      | integer |             | :blog => Blog#id と => (xxx_type)#id |       |
 # >> # | xxx_type | Xxx type | string  |             | モデル名(polymorphic)                |       |
+# >> # | xxx_id   | Xxx      | integer |             | :blog => Blog#id と => (xxx_type)#id |       |
 # >> # +----------+----------+---------+-------------+--------------------------------------+-------+
 # >> #
 # >> #- 備考 -------------------------------------------------------------------------
