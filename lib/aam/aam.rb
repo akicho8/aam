@@ -400,7 +400,8 @@ module Aam
         puts "--------------------------------------------------------------------------------"
         puts "--> #{@klass}"
         target_files = search_paths.collect {|search_path|
-          Pathname.glob((@base.options[:root_dir] + search_path).expand_path)
+          v = Pathname.glob((@base.options[:root_dir] + search_path).expand_path)
+          v.reject{|e|e.to_s.include?("node_modules")}
         }.flatten.uniq
         target_files.each {|e| annotate_write(e) }
       end
@@ -486,7 +487,11 @@ module Aam
         rescue Exception
         end
       end
-      ActiveRecord::Base.subclasses
+      if defined?(ApplicationRecord)
+        ApplicationRecord.subclasses
+      else
+        ActiveRecord::Base.subclasses
+      end
     end
 
     # app/models/* のファイル名を constantize してみることでクラスを収集する
