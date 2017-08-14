@@ -10,7 +10,7 @@
 
 require "active_record"
 require "active_support/core_ext/string/filters"
-require "rain_table"
+require "org_tp"
 
 module Aam
   SCHEMA_HEADER = "# == Schema Information =="
