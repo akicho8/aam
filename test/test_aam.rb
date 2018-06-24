@@ -49,7 +49,7 @@ Aam.logger = nil
 
 class TestAam < Test::Unit::TestCase
   test "test_main" do
-    assert_equal <<-EOT.strip_heredoc, Aam::SchemaInfoGenerator.new(User).generate 
+    assert_equal <<-EOT.strip_heredoc, Aam::SchemaInfoGenerator.new(User).generate
 # == Schema Information ==
 #
 # Userテーブル (users as User)
