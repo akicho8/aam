@@ -39,6 +39,7 @@ module Aam
           @counts[:error] += 1
         end
       end
+      puts
       puts "#{@counts[:success]} success, #{@counts[:skip]} skip, #{@counts[:error]} errors"
     end
 
@@ -74,7 +75,7 @@ module Aam
       end
 
       def write_to_relation_files
-        puts "--------------------------------------------------------------------------------"
+        puts ""
         puts "--> #{@klass}"
         target_files = search_paths.collect {|search_path|
           v = Pathname.glob((@base.root_dir + search_path).expand_path)
