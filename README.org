@@ -1,4 +1,4 @@
-* Advanced Anndate Models
+* Advanced Annotate Models
 
 ** How to use
 
