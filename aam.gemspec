@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Aam::VERSION
   spec.authors       = ["akicho8"]
   spec.email         = ["akicho8@gmail.com"]
-  spec.description   = %q{annotate_models kaizouban hobo jibun sennyou}
+  spec.description   = %q{Index reference to Japanese correspondence relation annotate_models}
   spec.summary       = %q{Advanced Annotate Models}
   spec.homepage      = ""
   spec.license       = "MIT"
