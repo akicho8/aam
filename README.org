@@ -1,5 +1,20 @@
 * Advanced Annotate Models
 
+** Installation
+
+Install as a standalone gem
+
+#+BEGIN_SRC shell-script
+$ gem install aam
+#+END_SRC
+
+Or install within application using Gemfile
+
+#+BEGIN_SRC shell-script
+$ bundle add aam
+$ bundle install
+#+END_SRC
+
 ** How to use
 
 #+BEGIN_SRC shell
