@@ -10,6 +10,6 @@ module Aam
 end
 
 require "aam/version"
-require "aam/schema_info_generator"
+require "aam/generator"
 require "aam/annotation"
 require "aam/railtie" if defined? Rails::Railtie

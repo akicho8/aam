@@ -49,10 +49,10 @@ if true
   I18n.backend.store_translations :ja, {:activerecord => {:models => {"sub_article" => "なんとか"} }, :attributes => {"user_id" => "ユーザー"}}
 end
 
-puts Aam::SchemaInfoGenerator.new(User).generate
-puts Aam::SchemaInfoGenerator.new(Article).generate
-puts Aam::SchemaInfoGenerator.new(Blog).generate
-puts Aam::SchemaInfoGenerator.new(SubArticle).generate
+puts Aam::Generator.new(User).generate
+puts Aam::Generator.new(Article).generate
+puts Aam::Generator.new(Blog).generate
+puts Aam::Generator.new(SubArticle).generate
 
 # >> # == Schema Information ==
 # >> #

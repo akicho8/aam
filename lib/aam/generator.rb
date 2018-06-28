@@ -3,7 +3,7 @@ require "active_support/core_ext/string/filters"
 require "table_format"
 
 module Aam
-  class SchemaInfoGenerator
+  class Generator
     def initialize(klass, options = {})
       @klass = klass
       @options = {
@@ -19,22 +19,22 @@ module Aam
       }
       rows = columns.collect {|e|
         {
-          "カラム名" => e.name,
-          "意味"     => column_to_human_name(e.name),
-          "タイプ"   => column_type_inspect_of(e),
-          "属性"     => column_attribute_inspect_of(e),
-          "参照"     => reflections_inspect_of(e),
-          "INDEX"    => index_info(e),
+          "name"  => e.name,
+          "desc"  => column_to_human_name(e.name),
+          "type"  => column_type_inspect_of(e),
+          "attr"  => column_attribute_inspect_of(e),
+          "refs"  => reflections_inspect_of(e),
+          "index" => index_info(e),
         }
       }
       out = []
       out << "#{SCHEMA_HEADER}\n#\n"
-      out << "# #{@klass.model_name.human}テーブル (#{@klass.table_name} as #{@klass.name})\n"
+      out << "# #{@klass.model_name.human} (#{@klass.table_name} as #{@klass.name})\n"
       out << "#\n"
       out << rows.to_t.lines.collect { |e| "# #{e}" }.join
       if @memos.present?
         out << "#\n"
-        out << "#- 備考 -------------------------------------------------------------------------\n"
+        out << "#- Remarks ----------------------------------------------------------------------\n"
         out << @memos.collect{|row|"# ・#{row}\n"}.join
         out << "#--------------------------------------------------------------------------------\n"
       end
@@ -115,7 +115,7 @@ module Aam
           else
             syntax = "belongs_to :#{name}"
           end
-          memo_puts "【警告】#{@klass} モデルに #{syntax} を追加してください"
+          memo_puts "[WARNING] #{@klass} モデルに #{syntax} を追加してください"
         else
           # "xxx_type" は polymorphic 指定されていることを確認
           key, reflection = @klass.reflections.find do |key, reflection|

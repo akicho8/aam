@@ -71,7 +71,7 @@ module Aam
       end
 
       def schema_info
-        @schema_info ||= SchemaInfoGenerator.new(@klass, @base.options).generate + "\n"
+        @schema_info ||= Generator.new(@klass, @base.options).generate + "\n"
       end
 
       def write_to_relation_files

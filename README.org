@@ -64,7 +64,7 @@ class SubArticle < Article
   belongs_to :blog, :class_name => "Blog", :foreign_key => :foo_id
 end
 
-puts Aam::SchemaInfoGenerator.new(User).generate
+puts Aam::Generator.new(User).generate
 # >> # == Schema Information ==
 # >> #
 # >> # Userテーブル (users as User)
@@ -77,7 +77,7 @@ puts Aam::SchemaInfoGenerator.new(User).generate
 # >> # | flag     | Flag | boolean | DEFAULT(f)  |      |       |
 # >> # +----------+------+---------+-------------+------+-------+
 
-puts Aam::SchemaInfoGenerator.new(Article).generate
+puts Aam::Generator.new(Article).generate
 # >> # == Schema Information ==
 # >> #
 # >> # Articleテーブル (articles as Article)
@@ -96,7 +96,7 @@ puts Aam::SchemaInfoGenerator.new(Article).generate
 # >> # ・【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, [:foo_id, :foo_type] を追加してください
 # >> #--------------------------------------------------------------------------------
 
-puts Aam::SchemaInfoGenerator.new(Blog).generate
+puts Aam::Generator.new(Blog).generate
 # >> # == Schema Information ==
 # >> #
 # >> # Blogテーブル (blogs as Blog)
@@ -108,7 +108,7 @@ puts Aam::SchemaInfoGenerator.new(Blog).generate
 # >> # | name     | Name | string  |             |      |       |
 # >> # +----------+------+---------+-------------+------+-------+
 
-puts Aam::SchemaInfoGenerator.new(SubArticle).generate
+puts Aam::Generator.new(SubArticle).generate
 # >> # == Schema Information ==
 # >> #
 # >> # なんとかテーブル (articles as SubArticle)
