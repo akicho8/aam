@@ -1,6 +1,6 @@
 require "active_record"
 require "active_support/core_ext/string/filters"
-require "org_tp"
+require "table_format"
 
 module Aam
   class SchemaInfoGenerator

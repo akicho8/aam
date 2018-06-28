@@ -223,7 +223,7 @@ end
 if $0 == __FILE__
   require "active_record"
   require "rails"
-  require "org_tp"
+  require "table_format"
   obj = Aam::Annotation.new(root_dir: "~/src/shogi_web")
   tp obj.send(:target_model_files)
   tp obj.send(:target_ar_klasses_from_model_filenames)
