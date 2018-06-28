@@ -22,7 +22,7 @@ module Aam
           "name"  => e.name,
           "desc"  => column_to_human_name(e.name),
           "type"  => column_type_inspect_of(e),
-          "attr"  => column_attribute_inspect_of(e),
+          "opts"  => column_attribute_inspect_of(e),
           "refs"  => reflections_inspect_of(e),
           "index" => index_info(e),
         }
@@ -35,7 +35,7 @@ module Aam
       if @memos.present?
         out << "#\n"
         out << "#- Remarks ----------------------------------------------------------------------\n"
-        out << @memos.collect{|row|"# ・#{row}\n"}.join
+        out << @memos.sort.collect{|row|"# #{row}\n"}.join
         out << "#--------------------------------------------------------------------------------\n"
       end
       out.join
@@ -187,9 +187,10 @@ module Aam
         if r
           syntax = ["#{assoc_reflection.macro} :#{assoc_reflection.name}"]
           if assoc_reflection.options[:foreign_key]
-            syntax << ":foreign_key => :#{assoc_reflection.options[:foreign_key]}"
+            syntax << "foreign_key: :#{assoc_reflection.options[:foreign_key]}"
           end
-          memo_puts "#{@klass.name} モデルは #{assoc_reflection.active_record} モデルから #{syntax.join(', ')} されています。"
+          # memo_puts "#{@klass.name} モデルは #{assoc_reflection.active_record} モデルから #{syntax.join(', ')} されています。"
+          memo_puts "#{assoc_reflection.active_record}.#{syntax.join(', ')}"
           r
         end
       end
