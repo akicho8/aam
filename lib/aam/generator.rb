@@ -95,7 +95,7 @@ module Aam
 
     def reflections_inspect_ary_of(column)
       if column.name == @klass.inheritance_column             # カラムが "type" のとき
-        return "モデル名(STI)"
+        return "SpecificModel(STI)"
       end
 
       index_check(column)
@@ -111,11 +111,11 @@ module Aam
         if md = column.name.match(/(\w+)_id\z/)
           name = md.captures.first
           if @klass.column_names.include?("#{name}_type")
-            syntax = "belongs_to :#{name}, :polymorphic => true"
+            syntax = "belongs_to :#{name}, polymorphic: true"
           else
             syntax = "belongs_to :#{name}"
           end
-          memo_puts "[WARNING] #{@klass} モデルに #{syntax} を追加してください"
+          memo_puts "[Warning: Need to add relation] #{@klass} モデルに #{syntax} を追加してください"
         else
           # "xxx_type" は polymorphic 指定されていることを確認
           key, reflection = @klass.reflections.find do |key, reflection|
@@ -129,7 +129,7 @@ module Aam
             end
           end
           if reflection
-            "モデル名(polymorphic)"
+            "SpecificModel(polymorphic)"
           end
         end
       else
@@ -290,14 +290,14 @@ module Aam
     #
     def index_check(column)
       if column.name.match(/(\w+)_id\z/) || belongs_to_column?(column)
-        # belongs_to :xxx, :polymorphic => true の場合は xxx_id と xxx_type のペアでインデックスを貼る
+        # belongs_to :xxx, polymorphic: true の場合は xxx_id と xxx_type のペアでインデックスを貼る
         if (md = column.name.match(/(\w+)_id\z/)) && (type_column = @klass.columns_hash["#{md.captures.first}_type"])
           unless index_column?(column) && index_column?(type_column)
-            memo_puts "【警告:インデックス欠如】create_#{@klass.table_name} マイグレーションに add_index :#{@klass.table_name}, [:#{column.name}, :#{type_column.name}] を追加してください"
+            memo_puts "[Warning: Need to add index] create_#{@klass.table_name} マイグレーションに add_index :#{@klass.table_name}, [:#{column.name}, :#{type_column.name}] を追加してください"
           end
         else
           unless index_column?(column)
-            memo_puts "【警告:インデックス欠如】create_#{@klass.table_name} マイグレーションに add_index :#{@klass.table_name}, :#{column.name} を追加してください"
+            memo_puts "[Warning: Need to add index] create_#{@klass.table_name} マイグレーションに add_index :#{@klass.table_name}, :#{column.name} を追加してください"
           end
         end
       end

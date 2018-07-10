@@ -13,7 +13,7 @@ ActiveRecord::Schema.define do
 
     create_table :articles do |t|
       t.belongs_to :user, index: true
-      t.belongs_to :foo, :polymorphic => true, :index => false # Rails5からindex:trueがデフォルトになっているため
+      t.belongs_to :foo, polymorphic: true, :index => false # Rails5からindex:trueがデフォルトになっているため
     end
 
     create_table :blogs do |t|
@@ -29,7 +29,7 @@ end
 
 class Article < ActiveRecord::Base
   belongs_to :user
-  belongs_to :foo, :polymorphic => true
+  belongs_to :foo, polymorphic: true
 end
 
 class Blog < ActiveRecord::Base
@@ -69,18 +69,18 @@ puts Aam::Generator.new(SubArticle).generate
 # >> #
 # >> # Article (articles as Article)
 # >> #
-# >> # |----------+----------+---------+-------------+-----------------------+-------|
-# >> # | name     | desc     | type    | opts        | refs                  | index |
-# >> # |----------+----------+---------+-------------+-----------------------+-------|
-# >> # | id       | Id       | integer | NOT NULL PK |                       |       |
-# >> # | user_id  | ユーザー | integer |             | => User#id            | A     |
-# >> # | foo_type | Foo type | string  |             | モデル名(polymorphic) |       |
-# >> # | foo_id   | Foo      | integer |             | => (foo_type)#id      |       |
-# >> # |----------+----------+---------+-------------+-----------------------+-------|
+# >> # |----------+----------+---------+-------------+----------------------------+-------|
+# >> # | name     | desc     | type    | opts        | refs                       | index |
+# >> # |----------+----------+---------+-------------+----------------------------+-------|
+# >> # | id       | Id       | integer | NOT NULL PK |                            |       |
+# >> # | user_id  | ユーザー | integer |             | => User#id                 | A     |
+# >> # | foo_type | Foo type | string  |             | SpecificModel(polymorphic) |       |
+# >> # | foo_id   | Foo      | integer |             | => (foo_type)#id           |       |
+# >> # |----------+----------+---------+-------------+----------------------------+-------|
 # >> #
 # >> #- Remarks ----------------------------------------------------------------------
 # >> # User.has_many :articles
-# >> # 【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, [:foo_id, :foo_type] を追加してください
+# >> # [Warning: Need to add index] create_articles マイグレーションに add_index :articles, [:foo_id, :foo_type] を追加してください
 # >> #--------------------------------------------------------------------------------
 # >> # == Schema Information ==
 # >> #
@@ -101,12 +101,12 @@ puts Aam::Generator.new(SubArticle).generate
 # >> # |----------+----------+---------+-------------+--------------------------------------+-------|
 # >> # | id       | Id       | integer | NOT NULL PK |                                      |       |
 # >> # | user_id  | ユーザー | integer |             | => User#id                           | A     |
-# >> # | foo_type | Foo type | string  |             | モデル名(polymorphic)                |       |
+# >> # | foo_type | Foo type | string  |             | SpecificModel(polymorphic)           |       |
 # >> # | foo_id   | Foo      | integer |             | :blog => Blog#id と => (foo_type)#id |       |
 # >> # |----------+----------+---------+-------------+--------------------------------------+-------|
 # >> #
 # >> #- Remarks ----------------------------------------------------------------------
 # >> # Blog.has_many :sub_articles, foreign_key: :foo_id
 # >> # User.has_many :articles
-# >> # 【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, [:foo_id, :foo_type] を追加してください
+# >> # [Warning: Need to add index] create_articles マイグレーションに add_index :articles, [:foo_id, :foo_type] を追加してください
 # >> #--------------------------------------------------------------------------------

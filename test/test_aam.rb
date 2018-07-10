@@ -12,14 +12,14 @@ ActiveRecord::Schema.define do
 
     create_table(:articles) do |t|
       t.belongs_to :user, :index => false
-      t.belongs_to :xxx, :polymorphic => true, :index => false
+      t.belongs_to :xxx, polymorphic: true, :index => false
     end
     create_table(:blogs) do |t|
       t.string :name
     end
     create_table(:foos) do |t|
       t.belongs_to :user, :index => false
-      t.belongs_to :xxx, :polymorphic => true, :index => false
+      t.belongs_to :xxx, polymorphic: true, :index => false
     end
   end
 end
@@ -31,7 +31,7 @@ end
 
 class Article < ActiveRecord::Base
   belongs_to :user
-  belongs_to :xxx, :polymorphic => true
+  belongs_to :xxx, polymorphic: true
 end
 
 class Blog < ActiveRecord::Base
@@ -52,53 +52,53 @@ class TestAam < Test::Unit::TestCase
     assert_equal <<-EOT.strip_heredoc, Aam::Generator.new(User).generate
 # == Schema Information ==
 #
-# Userテーブル (users as User)
+# User (users as User)
 #
-# |----------+------+------------+-------------+------+-------|
-# | カラム名 | 意味 | タイプ     | 属性        | 参照 | INDEX |
-# |----------+------+------------+-------------+------+-------|
-# | id       | Id   | integer    | NOT NULL PK |      |       |
-# | name     | Name | string(32) |             |      | A!    |
-# | flag     | Flag | boolean    | DEFAULT(f)  |      |       |
-# |----------+------+------------+-------------+------+-------|
+# |------+------+------------+-------------+------+-------|
+# | name | desc | type       | opts        | refs | index |
+# |------+------+------------+-------------+------+-------|
+# | id   | Id   | integer    | NOT NULL PK |      |       |
+# | name | Name | string(32) |             |      | A!    |
+# | flag | Flag | boolean    | DEFAULT(f)  |      |       |
+# |------+------+------------+-------------+------+-------|
 EOT
     assert_equal <<-EOT.strip_heredoc, Aam::Generator.new(Article).generate
 # == Schema Information ==
 #
-# Articleテーブル (articles as Article)
+# Article (articles as Article)
 #
-# |----------+----------+---------+-------------+-----------------------+-------|
-# | カラム名 | 意味     | タイプ  | 属性        | 参照                  | INDEX |
-# |----------+----------+---------+-------------+-----------------------+-------|
-# | id       | Id       | integer | NOT NULL PK |                       |       |
-# | user_id  | User     | integer |             | => User#id            |       |
-# | xxx_type | Xxx type | string  |             | モデル名(polymorphic) |       |
-# | xxx_id   | Xxx      | integer |             | => (xxx_type)#id      |       |
-# |----------+----------+---------+-------------+-----------------------+-------|
+# |----------+----------+---------+-------------+----------------------------+-------|
+# | name     | desc     | type    | opts        | refs                       | index |
+# |----------+----------+---------+-------------+----------------------------+-------|
+# | id       | Id       | integer | NOT NULL PK |                            |       |
+# | user_id  | User     | integer |             | => User#id                 |       |
+# | xxx_type | Xxx type | string  |             | SpecificModel(polymorphic) |       |
+# | xxx_id   | Xxx      | integer |             | => (xxx_type)#id           |       |
+# |----------+----------+---------+-------------+----------------------------+-------|
 #
-#- 備考 -------------------------------------------------------------------------
-# ・【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, :user_id を追加してください
-# ・Article モデルは User モデルから has_many :articles されています。
-# ・【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, [:xxx_id, :xxx_type] を追加してください
+#- Remarks ----------------------------------------------------------------------
+# User.has_many :articles
+# [Warning: Need to add index] create_articles マイグレーションに add_index :articles, :user_id を追加してください
+# [Warning: Need to add index] create_articles マイグレーションに add_index :articles, [:xxx_id, :xxx_type] を追加してください
 #--------------------------------------------------------------------------------
 EOT
     Aam::Generator.new(SubArticle).generate == <<-EOT.strip_heredoc
 # == Schema Information ==
 #
-# Sub articleテーブル (articles as SubArticle)
+# Sub article (articles as SubArticle)
 #
 # |----------+----------+---------+-------------+--------------------------------------+-------|
-# | カラム名 | 意味     | タイプ  | 属性        | 参照                                 | INDEX |
+# | name     | desc     | type    | opts        | refs                                 | index |
 # |----------+----------+---------+-------------+--------------------------------------+-------|
 # | id       | Id       | integer | NOT NULL PK |                                      |       |
 # | user_id  | User     | integer |             | => User#id                           |       |
-# | xxx_type | Xxx type | string  |             | モデル名(polymorphic)                |       |
+# | xxx_type | Xxx type | string  |             | SpecificModel(polymorphic)           |       |
 # | xxx_id   | Xxx      | integer |             | :blog => Blog#id と => (xxx_type)#id |       |
 # |----------+----------+---------+-------------+--------------------------------------+-------|
 #
 #- 備考 -------------------------------------------------------------------------
-# ・【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, :user_id を追加してください
-# ・【警告:インデックス欠如】create_articles マイグレーションに add_index :articles, [:xxx_id, :xxx_type] を追加してください
+# ・[Warning: Need to add index] create_articles マイグレーションに add_index :articles, :user_id を追加してください
+# ・[Warning: Need to add index] create_articles マイグレーションに add_index :articles, [:xxx_id, :xxx_type] を追加してください
 #--------------------------------------------------------------------------------
 EOT
   end
@@ -125,10 +125,10 @@ EOT
     assert_equal <<-EOT.strip_heredoc, Aam::Generator.new(Foo).generate
 # == Schema Information ==
 #
-# Fooテーブル (foos as Foo)
+# Foo (foos as Foo)
 #
 # |----------+----------+---------+-------------+------+-------|
-# | カラム名 | 意味     | タイプ  | 属性        | 参照 | INDEX |
+# | name     | desc     | type    | opts        | refs | index |
 # |----------+----------+---------+-------------+------+-------|
 # | id       | Id       | integer | NOT NULL PK |      |       |
 # | user_id  | User     | integer |             |      |       |
@@ -136,11 +136,11 @@ EOT
 # | xxx_id   | Xxx      | integer |             |      |       |
 # |----------+----------+---------+-------------+------+-------|
 #
-#- 備考 -------------------------------------------------------------------------
-# ・【警告:インデックス欠如】create_foos マイグレーションに add_index :foos, :user_id を追加してください
-# ・【警告】Foo モデルに belongs_to :user を追加してください
-# ・【警告:インデックス欠如】create_foos マイグレーションに add_index :foos, [:xxx_id, :xxx_type] を追加してください
-# ・【警告】Foo モデルに belongs_to :xxx, :polymorphic => true を追加してください
+#- Remarks ----------------------------------------------------------------------
+# [Warning: Need to add index] create_foos マイグレーションに add_index :foos, :user_id を追加してください
+# [Warning: Need to add index] create_foos マイグレーションに add_index :foos, [:xxx_id, :xxx_type] を追加してください
+# [Warning: Need to add relation] Foo モデルに belongs_to :user を追加してください
+# [Warning: Need to add relation] Foo モデルに belongs_to :xxx, polymorphic: true を追加してください
 #--------------------------------------------------------------------------------
 EOT
   end
