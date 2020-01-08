@@ -59,7 +59,7 @@ class TestAam < Test::Unit::TestCase
 # |------+------+------------+-------------+------+-------|
 # | id   | Id   | integer    | NOT NULL PK |      |       |
 # | name | Name | string(32) |             |      | A!    |
-# | flag | Flag | boolean    | DEFAULT(f)  |      |       |
+# | flag | Flag | boolean    | DEFAULT(0)  |      |       |
 # |------+------+------------+-------------+------+-------|
 EOT
     assert_equal <<-EOT.strip_heredoc, Aam::Generator.new(Article).generate
