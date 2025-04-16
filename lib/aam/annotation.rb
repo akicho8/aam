@@ -49,7 +49,7 @@ module Aam
         begin
           model = Model.new(self, klass)
           @all << model.schema_info
-        rescue ActiveRecord::ActiveRecordError => error
+        rescue ActiveRecord::ActiveRecordError
         end
       end
       file = root_dir.join("db", "schema_info.txt")

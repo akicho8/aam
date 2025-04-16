@@ -34,9 +34,9 @@ module Aam
       out << rows.to_t.lines.collect { |e| "# #{e}" }.join
       if @memos.present?
         out << "#\n"
-        out << "#- Remarks ----------------------------------------------------------------------\n"
-        out << @memos.sort.collect{|row|"# #{row}\n"}.join
-        out << "#--------------------------------------------------------------------------------\n"
+        out << "# - Remarks ---------------------------------------------------------------------\n"
+        out << @memos.sort.collect { |row| "# #{row}\n" }.join
+        out << "# -------------------------------------------------------------------------------\n"
       end
       out.join
     end
@@ -118,7 +118,7 @@ module Aam
           memo_puts "[Warning: Need to add relation] #{@klass} モデルに #{syntax} を追加してください"
         else
           # "xxx_type" は polymorphic 指定されていることを確認
-          key, reflection = @klass.reflections.find do |key, reflection|
+          _key, reflection = @klass.reflections.find do |key, reflection|
             _options = reflection.options
             if true
               # >= 3.1.3
@@ -178,7 +178,7 @@ module Aam
     # 理由は belongs_to に foreign_key が指定されたら has_many 側も has_many :foos, :foreign_key => "bar_id" とならないといけないため。
     #
     def belongs_to_model_has_many_syntax(column, reflection)
-      assoc_key, assoc_reflection = reflection.class_name.constantize.reflections.find do |assoc_key, assoc_reflection|
+      _assoc_key, assoc_reflection = reflection.class_name.constantize.reflections.find do |assoc_key, assoc_reflection|
         if false
           r = reflection.class_name.constantize == assoc_reflection.active_record && [:has_many, :has_one].include?(assoc_reflection.macro)
         else
@@ -252,7 +252,7 @@ module Aam
       # 関係するインデックスに絞る
       indexes2 = indexes.find_all {|e| e.columns.include?(column.name) }
       indexes2.collect {|e|
-        mark = ""
+        mark = +""
         # そのインデックスは何番目にあるかを調べる
         mark << ("A".."Z").to_a.at(indexes.index(e)).to_s
         # ユニークなら「！」
