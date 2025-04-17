@@ -139,7 +139,7 @@ module Aam
           body = body.sub(/#{Regexp.escape(MAGIC_COMMENT_LINE)}\s*/, "")
         end
         unless body.include?(MAGIC_COMMENT_LINE)
-          body = body.sub(/^\s*/, MAGIC_COMMENT_LINE)
+          body = body.sub(/^\s*/, MAGIC_COMMENT_LINE + "\n")
         end
         body
       end
