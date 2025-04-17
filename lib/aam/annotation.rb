@@ -122,7 +122,7 @@ module Aam
         if body.match(regexp)
           body = body.sub(regexp, schema_info)
         elsif body.include?(MAGIC_COMMENT_LINE)
-          body = body.sub(/#{Regexp.escape(MAGIC_COMMENT_LINE)}\s*/) {MAGIC_COMMENT_LINE + schema_info}
+          body = body.sub(/#{Regexp.escape(MAGIC_COMMENT_LINE)}\s*/) { MAGIC_COMMENT_LINE + "\n" + schema_info }
         else
           body = body.sub(/^\s*/, schema_info)
         end
